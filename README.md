@@ -1,4 +1,4 @@
-<h1 align="center"><img align="center" alt="Coding" width="60" src="https://i.pinimg.com/originals/77/90/86/779086162cc922f8b359a3735fcf8589.png"> <br>Guess Bass </h1>
+<h1 align="center"><img align="center" alt="Coding" width="100" src="https://i.pinimg.com/originals/74/73/8e/74738e00289de3ebdb91dbf7cc08399c.gif"> <br>Guess Bass </h1>
 
 <h2 align="center"><img width="30" src="https://i.pinimg.com/originals/c5/a1/84/c5a18424f6e9abbf12efa591d6f93f36.gif">     A-Number-Guessing-Game     <img width="30" src="https://i.pinimg.com/originals/c5/a1/84/c5a18424f6e9abbf12efa591d6f93f36.gif"></h2>
 
