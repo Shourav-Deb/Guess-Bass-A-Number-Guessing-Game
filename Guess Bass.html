@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess Bass</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <style>
+    :root {
+      --bg: #061a2b;
+      --card: rgba(255, 255, 255, 0.08);
+      --text: #eaf2ff;
+      --muted: rgba(234, 242, 255, 0.7);
+      --accent: #59d9ff;
+      --good: #4cff8b;
+      --warn: #ffd24a;
+      --bad: #ff4c66;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 20% 20%, #0b3a5e 0%, var(--bg) 60%),
+                  radial-gradient(1000px 800px at 80% 70%, #1b2a6b 0%, var(--bg) 65%);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    .app {
+      width: min(860px, 100%);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+    }
+
+    header {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--muted);
+    }
+
+    main {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.15);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .prompt {
+      font-size: 20px;
+      margin: 0 0 14px 0;
+      line-height: 1.35;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 12px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      outline: none;
+    }
+
+    input[type="text"]::placeholder { color: rgba(234,242,255,0.45); }
+
+    button {
+      padding: 12px 14px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(89, 217, 255, 0.14);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.05s ease, background 0.15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    button:hover { background: rgba(89, 217, 255, 0.22); }
+    button:active { transform: translateY(1px); }
+
+    .msg {
+      margin-top: 14px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,0.20);
+      color: var(--muted);
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .msg.good { border-color: rgba(76, 255, 139, 0.55); color: rgba(234,242,255,0.95); }
+    .msg.warn { border-color: rgba(255, 210, 74, 0.55); color: rgba(234,242,255,0.95); }
+    .msg.bad  { border-color: rgba(255, 76, 102, 0.55); color: rgba(234,242,255,0.95); }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .stat .label { color: var(--muted); font-size: 13px; }
+    .stat .value { font-size: 18px; }
+
+    .log {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.12);
+      height: 180px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      color: rgba(234,242,255,0.85);
+      line-height: 1.45;
+    }
+
+    .log .muted { color: rgba(234,242,255,0.55); }
+
+    footer {
+      padding: 16px 22px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🎯 Guess Bass ~ The Number Guessing Game<span class="badge">1–100</span></h1>
+      <div class="badge" id="stateBadge">Playing</div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>Game</h2>
+        <p class="prompt" id="prompt">
+          Guess the number between <b>1</b> and <b>100</b>.
+        </p>
+
+        <div class="row">
+          <input id="guessInput" type="text" inputmode="numeric" placeholder="Type a number…" />
+          <button id="guessBtn">Guess</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="msg" id="messageBox">
+          Enter your guess above.
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Stats</h2>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Attempts</div>
+            <div class="value" id="attemptsVal">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Range</div>
+            <div class="value">1–100</div>
+          </div>
+          <div class="stat">
+            <div class="label">Result</div>
+            <div class="value" id="rankVal">—</div>
+          </div>
+        </div>
+
+        <div class="log" id="logBox">
+          <div class="muted">History will appear here…</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div class="small">
+        Tip: Press <b>Enter</b> to submit.
+      </div>
+      <div class="right">
+        <button id="revealBtn">Reveal</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    let secret = 0;
+    let attempts = 0;
+    let finished = false;
+
+    const guessInput = document.getElementById("guessInput");
+    const guessBtn = document.getElementById("guessBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const revealBtn = document.getElementById("revealBtn");
+
+    const messageBox = document.getElementById("messageBox");
+    const attemptsVal = document.getElementById("attemptsVal");
+    const rankVal = document.getElementById("rankVal");
+    const logBox = document.getElementById("logBox");
+    const stateBadge = document.getElementById("stateBadge");
+
+    function rand1to100() {
+      return Math.floor(Math.random() * 100) + 1;
+    }
+
+    function setMessage(text, type = "") {
+      messageBox.className = "msg" + (type ? " " + type : "");
+      messageBox.textContent = text;
+    }
+
+    function logLine(text) {
+      if (logBox.querySelector(".muted")) logBox.innerHTML = "";
+      const div = document.createElement("div");
+      div.textContent = text;
+      logBox.appendChild(div);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function setPlayingUI() {
+      stateBadge.textContent = finished ? "Finished" : "Playing";
+      guessBtn.disabled = finished;
+      guessInput.disabled = finished;
+    }
+
+    function resetGame() {
+      secret = rand1to100();
+      attempts = 0;
+      finished = false;
+
+      attemptsVal.textContent = "0";
+      rankVal.textContent = "—";
+      logBox.innerHTML = '<div class="muted">History will appear here…</div>';
+      setMessage("Enter your guess above.");
+      setPlayingUI();
+
+      guessInput.value = "";
+      guessInput.focus();
+    }
+
+    function parseGuess(raw) {
+      const trimmed = raw.trim();
+      if (!/^\d+$/.test(trimmed)) return { ok: false, error: "Please input only numbers." };
+      const n = Number(trimmed);
+      if (n < 1 || n > 100) return { ok: false, error: "Enter a number between 1 and 100." };
+      return { ok: true, value: n };
+    }
+
+    function computeRank(a) {
+      if (a < 4)  return { label: "Genius", full: "Well Done, You are Genius." };
+      if (a < 8)  return { label: "Gold",   full: "Congo, on level Gold." };
+      if (a < 12) return { label: "Silver", full: "Climbed on level Silver." };
+      if (a < 17) return { label: "Bronze", full: "Still on level Bronze." };
+      return { label: "Trash", full: "Sorry, But You Are Trash." };
+    }
+
+    function handleGuess() {
+      if (finished) return;
+
+      const parsed = parseGuess(guessInput.value);
+      if (!parsed.ok) {
+        setMessage(parsed.error, "bad");
+        return;
+      }
+
+      const guess = parsed.value;
+      attempts++;
+      attemptsVal.textContent = attempts;
+
+      logLine(`Attempt ${attempts}: ${guess}`);
+
+      if (guess > secret) {
+        setMessage("Lower number please!", "warn");
+      } else if (guess < secret) {
+        setMessage("Higher number please!", "warn");
+      } else {
+        finished = true;
+        setMessage(`You guessed it in ${attempts} attempts!`, "good");
+        const rank = computeRank(attempts);
+        rankVal.textContent = rank.label;
+        logLine(rank.full);
+      }
+
+      setPlayingUI();
+      guessInput.select();
+      guessInput.focus();
+    }
+
+    guessBtn.addEventListener("click", handleGuess);
+    resetBtn.addEventListener("click", resetGame);
+    revealBtn.addEventListener("click", () => {
+      logLine(`Secret number is: ${secret}`);
+    });
+
+    guessInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleGuess();
+    });
+
+    resetGame();
+  </script>
+</body>
+</html>
