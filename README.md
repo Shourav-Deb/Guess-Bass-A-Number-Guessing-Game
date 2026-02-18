@@ -9,7 +9,7 @@ You must precisely guess the number that your comp has thought in this quick num
 * Make Sure To Use At Least Codeblocks-20.03 & Latest C Compile File (e.g., mingw).
 * Import The Project.
 * Run & Enjoy.
-* You Can Also Run The Guess Bass.exe From Folder.
+* You Can Also Run The Guess Bass.exe From Folder Locally or Play Online [Guessbass](https://guess-bass.onrender.com).
 
 <br>
 <h1 align="center">>> Overview <<</h1>
